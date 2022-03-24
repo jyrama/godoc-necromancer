@@ -2,6 +2,7 @@ package main
 
 import (
 	"debug/buildinfo"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -11,15 +12,19 @@ import (
 )
 
 func main() {
-	targetFile := "/go/bin/dlv"
-	bi, err := buildinfo.ReadFile(targetFile)
+
+	var targetFile = flag.String("target", "PLEASE_SET_TARGET", "the binary file we want to inspect")
+	var modfileName = flag.String("modfileName", "PLEASE_SET_MODFILENAME", "")
+	flag.Parse()
+
+	bi, err := buildinfo.ReadFile(*targetFile)
 	if err != nil {
-		log.Fatalf("Error reading buildinfo from %s: %v", targetFile, err)
+		log.Fatalf("Error reading buildinfo from %s: %v", *targetFile, err)
 	}
-	modfileName := "/workspaces/gomod-necromancer/go.mod"
-	file, err := os.Open(modfileName)
+
+	file, err := os.Open(*modfileName)
 	contents, err := io.ReadAll(file)
-	gomod, err := modfile.Parse(modfileName, contents, nil)
+	gomod, err := modfile.Parse(*modfileName, contents, nil)
 	_ = gomod
 	mod := modfile.File{}
 
